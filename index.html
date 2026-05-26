@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kids Learning Math Game</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#6dd5ed,#2193b0);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.game-box{
+    background:white;
+    width:100%;
+    max-width:500px;
+    border-radius:20px;
+    padding:25px;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+h1{
+    color:#ff5722;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    color:#555;
+    margin-bottom:20px;
+}
+
+.score-box{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.question{
+    font-size:40px;
+    margin:25px 0;
+    color:#333;
+}
+
+.options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.option-btn{
+    padding:15px;
+    border:none;
+    border-radius:15px;
+    font-size:22px;
+    cursor:pointer;
+    transition:0.3s;
+    color:white;
+    font-weight:bold;
+}
+
+.option-btn:hover{
+    transform:scale(1.05);
+}
+
+.option1{ background:#ff9800; }
+.option2{ background:#4caf50; }
+.option3{ background:#e91e63; }
+.option4{ background:#3f51b5; }
+
+.message{
+    margin-top:20px;
+    font-size:24px;
+    font-weight:bold;
+    min-height:35px;
+}
+
+.correct{
+    color:green;
+}
+
+.wrong{
+    color:red;
+}
+
+.level-box{
+    margin-top:20px;
+}
+
+.level-btn{
+    padding:10px 15px;
+    border:none;
+    border-radius:10px;
+    margin:5px;
+    cursor:pointer;
+    background:#009688;
+    color:white;
+    font-weight:bold;
+}
+
+.level-btn:hover{
+    opacity:0.9;
+}
+
+@media(max-width:500px){
+    .question{
+        font-size:32px;
+    }
+
+    .option-btn{
+        font-size:18px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="game-box">
+
+    <h1>Kids Learning Game</h1>
+    <div class="subtitle">Learn Math With Fun</div>
+
+    <div class="score-box">
+        <div>Score: <span id="score">0</span></div>
+        <div>Stars: ⭐ <span id="stars">0</span></div>
+    </div>
+
+    <div class="question" id="question">
+        2 + 2 = ?
+    </div>
+
+    <div class="options">
+        <button class="option-btn option1" onclick="checkAnswer(this)"></button>
+        <button class="option-btn option2" onclick="checkAnswer(this)"></button>
+        <button class="option-btn option3" onclick="checkAnswer(this)"></button>
+        <button class="option-btn option4" onclick="checkAnswer(this)"></button>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="level-box">
+        <button class="level-btn" onclick="setLevel('easy')">Easy</button>
+        <button class="level-btn" onclick="setLevel('medium')">Medium</button>
+        <button class="level-btn" onclick="setLevel('hard')">Hard</button>
+    </div>
+
+</div>
+
+<script>
+let correctAnswer = 0;
+let score = 0;
+let stars = 0;
+let level = "easy";
+
+const questionEl = document.getElementById("question");
+const optionBtns = document.querySelectorAll(".option-btn");
+const messageEl = document.getElementById("message");
+const scoreEl = document.getElementById("score");
+const starsEl = document.getElementById("stars");
+
+function setLevel(selectedLevel){
+    level = selectedLevel;
+    generateQuestion();
+}
+
+function generateQuestion(){
+
+    let num1, num2, operator;
+
+    if(level === "easy"){
+        num1 = random(1,10);
+        num2 = random(1,10);
+        operator = "+";
+        correctAnswer = num1 + num2;
+    }
+
+    else if(level === "medium"){
+        num1 = random(5,20);
+        num2 = random(1,10);
+
+        operator = Math.random() > 0.5 ? "+" : "-";
+
+        if(operator === "+"){
+            correctAnswer = num1 + num2;
+        }else{
+            correctAnswer = num1 - num2;
+        }
+    }
+
+    else{
+        num1 = random(2,12);
+        num2 = random(2,12);
+
+        operator = Math.random() > 0.5 ? "×" : "+";
+
+        if(operator === "×"){
+            correctAnswer = num1 * num2;
+        }else{
+            correctAnswer = num1 + num2;
+        }
+    }
+
+    questionEl.innerHTML = `${num1} ${operator} ${num2} = ?`;
+
+    let answers = [correctAnswer];
+
+    while(answers.length < 4){
+        let fakeAnswer = correctAnswer + random(-10,10);
+
+        if(fakeAnswer < 0){
+            fakeAnswer = random(1,20);
+        }
+
+        if(!answers.includes(fakeAnswer)){
+            answers.push(fakeAnswer);
+        }
+    }
+
+    answers.sort(() => Math.random() - 0.5);
+
+    optionBtns.forEach((btn,index)=>{
+        btn.innerHTML = answers[index];
+    });
+
+}
+
+function checkAnswer(button){
+
+    let selected = Number(button.innerHTML);
+
+    if(selected === correctAnswer){
+
+        score += 10;
+        stars++;
+
+        scoreEl.innerHTML = score;
+        starsEl.innerHTML = stars;
+
+        messageEl.innerHTML = "Correct! 🎉";
+        messageEl.className = "message correct";
+
+        playCorrectSound();
+
+    }else{
+
+        messageEl.innerHTML = "Wrong! ❌";
+        messageEl.className = "message wrong";
+
+        playWrongSound();
+    }
+
+    setTimeout(()=>{
+        messageEl.innerHTML = "";
+        generateQuestion();
+    },1000);
+
+}
+
+function random(min,max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function playCorrectSound(){
+    let audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
+    audio.play();
+}
+
+function playWrongSound(){
+    let audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
+    audio.play();
+}
+
+generateQuestion();
+</script>
+
+</body>
+</html>
